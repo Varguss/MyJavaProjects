@@ -32,7 +32,7 @@ public class DataBaseDAO {
             logger.error("JDBC драйвер для MySQL не был найден. Корректная работа программы невозможна без подключения к БД.", e);
         }
 
-        try (InputStream inputStream = Files.newInputStream(Paths.get(DataBaseDAO.class.getProtectionDomain().getCodeSource().getLocation().getPath().substring(1) + "database.properties"))) {
+        try (InputStream inputStream = Files.newInputStream(Paths.get(DataBaseDAO.class.getProtectionDomain().getCodeSource().getLocation().getPath().substring(1).replace("%20", " ") + "database.properties"))) {
             properties.load(inputStream);
         } catch (IOException e) {
             logger.error("Файл database.properties не был найден. Пожалуйста, проверьте, что файл database.properties действительно существует в директории src, после чего перезапустите программу.", e);
