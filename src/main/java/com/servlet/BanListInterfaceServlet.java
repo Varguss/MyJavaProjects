@@ -47,7 +47,7 @@ public class BanListInterfaceServlet extends HttpServlet {
             Order order = Order.NO_ORDER;
 
             for (Order o : Order.values())
-                if (o.getOrderQueryValue().startsWith(sortingTypeParam) && o.name().endsWith(orderParam.toLowerCase()))
+                if (o.getOrderQueryValue().startsWith(sortingTypeParam) && o.getOrderQueryValue().endsWith(orderParam.toUpperCase()))
                     order = o;
 
             if (order == Order.NO_ORDER) {
