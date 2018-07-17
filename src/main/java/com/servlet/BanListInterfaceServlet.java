@@ -2,7 +2,9 @@ package com.servlet;
 
 import com.entity.Ban;
 import com.exception.CkeyBanInfoIsNotFoundException;
+import com.exception.TooManyRequestsPerMinuteException;
 import com.model.DataBaseDAO;
+import com.model.DataBaseDAOSecurityWrapper;
 import com.model.Order;
 import org.apache.log4j.Logger;
 
@@ -19,7 +21,7 @@ import java.util.StringJoiner;
 
 public class BanListInterfaceServlet extends HttpServlet {
     private static final Logger logger = Logger.getLogger(CashUpdateServlet.class);
-    private static final DataBaseDAO dataBaseDAO = DataBaseDAO.getDataBaseDAO();
+    private static final DataBaseDAOSecurityWrapper DATA_BASE_DAO = new DataBaseDAOSecurityWrapper();
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -49,26 +51,30 @@ public class BanListInterfaceServlet extends HttpServlet {
                     order = o;
 
             if (order == Order.NO_ORDER) {
-                switch(sortingTypeParam) {
+                switch (sortingTypeParam) {
                     case "datetime": {
                         order = Order.BANTIME_DESC;
-                    } break;
+                    }
+                    break;
                     case "job": {
                         order = Order.JOB_ASC;
-                    } break;
+                    }
+                    break;
                     case "duration": {
                         order = Order.DURATION_DESC;
-                    } break;
+                    }
+                    break;
                     case "a_ckey": {
                         order = Order.ADMIN_CKEY_ASC;
-                    } break;
+                    }
+                    break;
                     case "standard_order": {
                         order = Order.BANTIME_DESC;
                     }
                 }
             }
 
-            List<Ban> bans = dataBaseDAO.getBans(ckeyParam, adminCkeyParam, jobban, order);
+            List<Ban> bans = DATA_BASE_DAO.getBans(ckeyParam, adminCkeyParam, jobban, order);
 
             if (bans.size() == 0) {
                 writer.println("Результаты отсутствуют!");
@@ -108,6 +114,9 @@ public class BanListInterfaceServlet extends HttpServlet {
         } catch (CkeyBanInfoIsNotFoundException e) {
             writer.println("<h1>Информация об игроке " + ckeyParam + " не обнаружена!");
             logger.info("Не удалось извлечь информацию об игроке " + ckeyParam + " для адреса " + req.getRemoteAddr());
+        } catch (TooManyRequestsPerMinuteException e) {
+            writer.println("<h1>Был исчерпан лимит на количество запросов в минуту. Повторите запрос через минуту.</h1>");
+            logger.warn("Обнаружена угроза спама запросами. Возможный источник: " + req.getRemoteAddr());
         }
 
         RequestDispatcher footerRequestDispatcher = req.getRequestDispatcher("footer.html");

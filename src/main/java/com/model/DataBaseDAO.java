@@ -45,7 +45,7 @@ public class DataBaseDAO {
      *
      * @return DAO
      */
-    public static DataBaseDAO getDataBaseDAO() {
+    public static DataBaseDAO getInstance() {
         if (dataBaseDAO == null) {
             logger.info("Инициализация DAO...");
             dataBaseDAO = new DataBaseDAO();
@@ -71,146 +71,6 @@ public class DataBaseDAO {
         }
 
         return dataBaseDAO;
-    }
-
-    // ### Job Bans Without Admin Ckey ### \\
-    public List<Ban> getJobBans(String ckey) throws CkeyBanInfoIsNotFoundException {
-        return getBans(ckey, null, true, Order.NO_ORDER);
-    }
-
-    public List<Ban> getJobBansOrderedByAdminCkeyASC(String ckey) throws CkeyBanInfoIsNotFoundException {
-        return getBans(ckey, null, true, Order.ADMIN_CKEY_ASC);
-    }
-
-    public List<Ban> getJobBansOrderedByAdminCkeyDESC(String ckey) throws CkeyBanInfoIsNotFoundException {
-        return getBans(ckey, null, true, Order.ADMIN_CKEY_DESC);
-    }
-
-    public List<Ban> getJobBansOrderedByBantimeASC(String ckey) throws CkeyBanInfoIsNotFoundException {
-        return getBans(ckey, null, true, Order.BANTIME_ASC);
-    }
-
-    public List<Ban> getJobBansOrderedByBantimeDESC(String ckey) throws CkeyBanInfoIsNotFoundException {
-        return getBans(ckey, null, true, Order.BANTIME_DESC);
-    }
-
-    public List<Ban> getJobBansOrderedByDurationASC(String ckey) throws CkeyBanInfoIsNotFoundException {
-        return getBans(ckey, null, true, Order.DURATION_ASC);
-    }
-
-    public List<Ban> getJobBansOrderedByDurationDESC(String ckey) throws CkeyBanInfoIsNotFoundException {
-        return getBans(ckey, null, true, Order.DURATION_DESC);
-    }
-
-    public List<Ban> getJobBansOrderedByJobASC(String ckey) throws CkeyBanInfoIsNotFoundException {
-        return getBans(ckey, null, true, Order.JOB_ASC);
-    }
-
-    public List<Ban> getJobBansOrderedByJobDESC(String ckey) throws CkeyBanInfoIsNotFoundException {
-        return getBans(ckey, null, true, Order.JOB_DESC);
-    }
-
-    // ### Job Bans By Admin Ckey ### \\
-    public List<Ban> getJobBansByAdminCkey(String ckey, String adminCkey) throws CkeyBanInfoIsNotFoundException {
-        return getBans(ckey, adminCkey, true, Order.NO_ORDER);
-    }
-
-    public List<Ban> getJobBansByAdminCkeyOrderedByAdminCkeyASC(String ckey, String adminCkey) throws CkeyBanInfoIsNotFoundException {
-        return getBans(ckey, adminCkey, true, Order.ADMIN_CKEY_ASC);
-    }
-
-    public List<Ban> getJobBansByAdminCkeyOrderedByAdminCkeyDESC(String ckey, String adminCkey) throws CkeyBanInfoIsNotFoundException {
-        return getBans(ckey, adminCkey, true, Order.ADMIN_CKEY_DESC);
-    }
-
-    public List<Ban> getJobBansByAdminCkeyOrderedByBantimeASC(String ckey, String adminCkey) throws CkeyBanInfoIsNotFoundException {
-        return getBans(ckey, adminCkey, true, Order.BANTIME_ASC);
-    }
-
-    public List<Ban> getJobBansByAdminCkeyOrderedByBantimeDESC(String ckey, String adminCkey) throws CkeyBanInfoIsNotFoundException {
-        return getBans(ckey, adminCkey, true, Order.BANTIME_DESC);
-    }
-
-    public List<Ban> getJobBansByAdminCkeyOrderedByDurationASC(String ckey, String adminCkey) throws CkeyBanInfoIsNotFoundException {
-        return getBans(ckey, adminCkey, true, Order.DURATION_ASC);
-    }
-
-    public List<Ban> getJobBansByAdminCkeyOrderedByDurationDESC(String ckey, String adminCkey) throws CkeyBanInfoIsNotFoundException {
-        return getBans(ckey, adminCkey, true, Order.DURATION_DESC);
-    }
-
-    public List<Ban> getJobBansByAdminCkeyOrderedByJobASC(String ckey, String adminCkey) throws CkeyBanInfoIsNotFoundException {
-        return getBans(ckey, adminCkey, true, Order.JOB_ASC);
-    }
-
-    public List<Ban> getJobBansByAdminCkeyOrderedByJobDESC(String ckey, String adminCkey) throws CkeyBanInfoIsNotFoundException {
-        return getBans(ckey, adminCkey, true, Order.JOB_DESC);
-    }
-
-    // ### Bans Without Admin Ckey ### \\
-    public List<Ban> getBans(String ckey) throws CkeyBanInfoIsNotFoundException {
-        return getBans(ckey, null, false, Order.NO_ORDER);
-    }
-
-    public List<Ban> getBansOrderedByAdminCkeyASC(String ckey) throws CkeyBanInfoIsNotFoundException {
-        return getBans(ckey, null, false, Order.ADMIN_CKEY_ASC);
-    }
-
-    public List<Ban> getBansOrderedByAdminCkeyDESC(String ckey) throws CkeyBanInfoIsNotFoundException {
-        return getBans(ckey, null, false, Order.ADMIN_CKEY_DESC);
-    }
-
-    public List<Ban> getBansOrderedByBantimeASC(String ckey) throws CkeyBanInfoIsNotFoundException {
-        return getBans(ckey, null, false, Order.BANTIME_ASC);
-    }
-
-    public List<Ban> getBansOrderedByBantimeDESC(String ckey) throws CkeyBanInfoIsNotFoundException {
-        return getBans(ckey, null, false, Order.BANTIME_DESC);
-    }
-
-    public List<Ban> getBansOrderedByDurationASC(String ckey) throws CkeyBanInfoIsNotFoundException {
-        return getBans(ckey, null, false, Order.DURATION_ASC);
-    }
-
-    public List<Ban> getBansOrderedByDurationDESC(String ckey) throws CkeyBanInfoIsNotFoundException {
-        return getBans(ckey, null, false, Order.DURATION_DESC);
-    }
-
-    // ### Bans By Admin Ckey ### \\
-    public List<Ban> getBansByAdminCkey(String ckey, String adminCkey) throws CkeyBanInfoIsNotFoundException {
-        return getBans(ckey, adminCkey, false, Order.NO_ORDER);
-    }
-
-    public List<Ban> getBansByAdminCkeyOrderedByAdminCkeyASC(String ckey, String adminCkey) throws CkeyBanInfoIsNotFoundException {
-        return getBans(ckey, adminCkey, false, Order.ADMIN_CKEY_ASC);
-    }
-
-    public List<Ban> getBansByAdminCkeyOrderedByAdminCkeyDESC(String ckey, String adminCkey) throws CkeyBanInfoIsNotFoundException {
-        return getBans(ckey, adminCkey, false, Order.ADMIN_CKEY_DESC);
-    }
-
-    public List<Ban> getBansByAdminCkeyOrderedByBantimeASC(String ckey, String adminCkey) throws CkeyBanInfoIsNotFoundException {
-        return getBans(ckey, adminCkey, false, Order.BANTIME_ASC);
-    }
-
-    public List<Ban> getBansByAdminCkeyOrderedByBantimeDESC(String ckey, String adminCkey) throws CkeyBanInfoIsNotFoundException {
-        return getBans(ckey, adminCkey, false, Order.BANTIME_DESC);
-    }
-
-    public List<Ban> getBansByAdminCkeyOrderedByDurationASC(String ckey, String adminCkey) throws CkeyBanInfoIsNotFoundException {
-        return getBans(ckey, adminCkey, false, Order.DURATION_ASC);
-    }
-
-    public List<Ban> getBansByAdminCkeyOrderedByDurationDESC(String ckey, String adminCkey) throws CkeyBanInfoIsNotFoundException {
-        return getBans(ckey, adminCkey, false, Order.DURATION_DESC);
-    }
-
-    public List<Ban> getBansByAdminCkeyOrderedByJobASC(String ckey, String adminCkey) throws CkeyBanInfoIsNotFoundException {
-        return getBans(ckey, adminCkey, false, Order.JOB_ASC);
-    }
-
-    public List<Ban> getBansByAdminCkeyOrderedByJobDESC(String ckey, String adminCkey) throws CkeyBanInfoIsNotFoundException {
-        return getBans(ckey, adminCkey, false, Order.JOB_DESC);
     }
 
     /**
@@ -251,7 +111,7 @@ public class DataBaseDAO {
 
         List<Ban> resultList = new ArrayList<>();
 
-        try (Connection connection = getDataBaseDAO().getConnection();
+        try (Connection connection = getInstance().getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
 
             statement.setString(1, ckey);
@@ -376,7 +236,7 @@ public class DataBaseDAO {
                     logger.info("Обновление кэша запланировано через один час!");
                     // Один час задержка.
                     Thread.sleep(60*60*1000);
-                    getDataBaseDAO().updateCash();
+                    getInstance().updateCash();
                     logger.info("Произведено обновление кэша!");
                 } catch (InterruptedException e) {
                     logger.error("Остановка кэш-апдейтера...", e);
