@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.StringJoiner;
 
 public class BanListInterfaceServlet extends HttpServlet {
-    private static final Logger logger = Logger.getLogger(CashUpdateServlet.class);
+    private static final Logger logger = Logger.getLogger(BanListInterfaceServlet.class);
     private static final DataBaseDAOSecurityWrapper DATA_BASE_DAO = new DataBaseDAOSecurityWrapper();
 
     @Override
