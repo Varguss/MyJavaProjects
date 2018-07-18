@@ -1,6 +1,7 @@
 package com.model;
 
 import com.entity.Ban;
+import com.exception.AdminCkeyIsNotFoundException;
 import com.exception.CanNotGetConnectionException;
 import com.exception.CkeyBanInfoIsNotFoundException;
 import org.apache.log4j.Logger;
@@ -22,6 +23,7 @@ public class DataBaseDAO {
     // Кэш и кэш-апдейтер. Кэш-апдейтер обновляет кэш каждый час.
     private CacheUpdater cacheUpdater = new CacheUpdater();
     private Set<String> availableCkeySet = new HashSet<>();
+    private Set<String> availableAdminCkeySet = new HashSet<>();
 
     static {
         try {
@@ -32,7 +34,12 @@ public class DataBaseDAO {
             logger.error("JDBC драйвер для MySQL не был найден. Корректная работа программы невозможна без подключения к БД.", e);
         }
 
-        try (InputStream inputStream = Files.newInputStream(Paths.get(DataBaseDAO.class.getProtectionDomain().getCodeSource().getLocation().getPath().substring(1).replace("%20", " ") + "database.properties"))) {
+        String path = System.getProperty("os.name").toLowerCase().contains("linux") ?
+                DataBaseDAO.class.getProtectionDomain().getCodeSource().getLocation().getPath().replace("%20", " ")
+                :
+                DataBaseDAO.class.getProtectionDomain().getCodeSource().getLocation().getPath().substring(1).replace("%20", " ");
+
+        try (InputStream inputStream = Files.newInputStream(Paths.get(path + "database.properties"))) {
             properties.load(inputStream);
         } catch (IOException e) {
             logger.error("Файл database.properties не был найден. Пожалуйста, проверьте, что файл database.properties действительно существует в директории src, после чего перезапустите программу.", e);
@@ -45,7 +52,7 @@ public class DataBaseDAO {
      *
      * @return DAO
      */
-    public static DataBaseDAO getInstance() {
+    static DataBaseDAO getInstance() {
         if (dataBaseDAO == null) {
             logger.info("Инициализация DAO...");
             dataBaseDAO = new DataBaseDAO();
@@ -55,12 +62,17 @@ public class DataBaseDAO {
 
                 logger.info("Загрузка в кэш уникальных ckey-значений из БД...");
 
-                ResultSet results = statement.executeQuery("SELECT DISTINCT ckey FROM " + properties.get("ban_table"));
+                ResultSet ckeyResults = statement.executeQuery("SELECT DISTINCT ckey FROM " + properties.get("ban_table"));
 
-                while (results.next())
-                    dataBaseDAO.availableCkeySet.add(results.getString("ckey"));
+                while (ckeyResults.next())
+                    dataBaseDAO.availableCkeySet.add(ckeyResults.getString("ckey"));
 
-                logger.info("Загрузка кэша успешно завершена. Всего загружено сикеев: " + dataBaseDAO.availableCkeySet.size());
+                ResultSet adminCkeyResults = statement.executeQuery("SELECT DISTINCT a_ckey FROM " + properties.get("ban_table"));
+
+                while (adminCkeyResults.next())
+                    dataBaseDAO.availableAdminCkeySet.add(adminCkeyResults.getString("a_ckey"));
+
+                logger.info("Загрузка кэша успешно завершена. Всего загружено сикеев игроков: " + dataBaseDAO.availableCkeySet.size() + ", админов: " + adminCkeyResults);
             } catch (SQLException e) {
                 logger.fatal("Ошибка загрузки кэша. Проверьте доступ к БД. Проверьте настройки в файле database.properties. Корректная работа программы невозможна без правильной инициализации кэша. Завершение программы...", e);
                 System.exit(1);
@@ -114,15 +126,53 @@ public class DataBaseDAO {
         try (Connection connection = getInstance().getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
 
-            statement.setString(1, ckey);
+            statement.setString(1, ckey.toLowerCase());
 
             if (adminCkey != null && !adminCkey.isEmpty())
-                statement.setString(2, adminCkey);
+                statement.setString(2, adminCkey.toLowerCase());
 
             ResultSet resultSet = statement.executeQuery();
             retrieveBansInfo(resultList, resultSet);
         } catch (SQLException e) {
             logger.error("Ошибка извлечения списка банов игрока " + ckey + ". Возможные (но не все) причины: изменение структуры БД или отказ в доступе к БД.", e);
+        }
+
+        return resultList;
+    }
+
+    public List<Ban> getAdminBans(String adminCkey, boolean jobBan, Order order) throws AdminCkeyIsNotFoundException {
+        if (isAdminCkeyNotExisting(adminCkey))
+            throw new AdminCkeyIsNotFoundException();
+
+        String query = String.format("SELECT bantime, %sreason, duration, expiration_time, ckey, a_ckey, adminwho, bantype FROM %s WHERE a_ckey=?", jobBan ? "job, " : "", properties.get("ban_table"));
+        String log = "Извлечение всех ";
+
+        if (jobBan) {
+            log += "джоббанов администратора " + adminCkey + ".";
+            query += " AND (bantype='JOB_TEMPBAN' OR bantype='JOB_PERMABAN')";
+        } else {
+            log += "банов администратора " + adminCkey + ".";
+            query += " AND (bantype='TEMPBAN' OR bantype='PERMABAN')";
+        }
+
+        if (order != Order.NO_ORDER) {
+            log += " Сортировка: " + order.getOrderQueryValue();
+            query += " ORDER BY " + order.getOrderQueryValue();
+        }
+
+        logger.info(log);
+
+        List<Ban> resultList = new ArrayList<>();
+
+        try (Connection connection = getInstance().getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+
+            statement.setString(1, adminCkey.toLowerCase());
+
+            ResultSet resultSet = statement.executeQuery();
+            retrieveBansInfo(resultList, resultSet);
+        } catch (SQLException e) {
+            logger.error("Ошибка извлечения списка банов администратора " + adminCkey + ". Возможные (но не все) причины: изменение структуры БД или отказ в доступе к БД.", e);
         }
 
         return resultList;
@@ -134,12 +184,17 @@ public class DataBaseDAO {
 
             logger.info("Обновление кэша...");
 
-            ResultSet results = statement.executeQuery("SELECT DISTINCT ckey FROM " + properties.get("ban_table"));
+            ResultSet ckeyResults = statement.executeQuery("SELECT DISTINCT ckey FROM " + properties.get("ban_table"));
 
-            while (results.next())
-                dataBaseDAO.availableCkeySet.add(results.getString("ckey"));
+            while (ckeyResults.next())
+                dataBaseDAO.availableCkeySet.add(ckeyResults.getString("ckey"));
 
-            logger.info("Обновление кэша завершено. Всего загружено сикеев: " + dataBaseDAO.availableCkeySet.size());
+            ResultSet adminCkeyResults = statement.executeQuery("SELECT DISTINCT a_ckey FROM " + properties.get("ban_table"));
+
+            while (adminCkeyResults.next())
+                dataBaseDAO.availableAdminCkeySet.add(adminCkeyResults.getString("a_ckey"));
+
+            logger.info("Обновление кэша завершено. Всего загружено сикеев игроков: " + dataBaseDAO.availableCkeySet.size() + ", админов: " + adminCkeyResults);
         } catch (SQLException | CanNotGetConnectionException e) {
             logger.error("Ошибка обновления кэша.", e);
         }
@@ -160,12 +215,20 @@ public class DataBaseDAO {
 
     /**
      * Проверка, что есть хотя бы один бан у переданного сикея.
-     *
      * @param ckey Сикей игрока.
      * @return true - у игрока есть хотя бы один бан, false - игрок не существует или ранее не был забанен.
      */
     private boolean isCkeyNotExisting(String ckey) {
-        return !availableCkeySet.contains(ckey);
+        return !availableCkeySet.contains(ckey.toLowerCase());
+    }
+
+    /**
+     * Проверка, что сикей админа есть в кэше.
+     * @param adminCkey Сикей админа.
+     * @return true - сикей админа есть в кэше, false - его нет в кэше.
+     */
+    private boolean isAdminCkeyNotExisting(String adminCkey) {
+        return !availableAdminCkeySet.contains(adminCkey.toLowerCase());
     }
 
     private void retrieveBansInfo(List<Ban> toRetrieve, ResultSet resultSet) throws SQLException {

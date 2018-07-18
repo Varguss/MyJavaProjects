@@ -1,6 +1,7 @@
 package com.servlet;
 
 import com.entity.Ban;
+import com.exception.AdminCkeyIsNotFoundException;
 import com.exception.CkeyBanInfoIsNotFoundException;
 import com.exception.TooManyRequestsPerMinuteException;
 import com.model.DataBaseDAO;
@@ -35,13 +36,12 @@ public class BanListInterfaceServlet extends HttpServlet {
         RequestDispatcher headerRequestDispatcher = req.getRequestDispatcher("header.html");
         headerRequestDispatcher.include(req, resp);
 
-        String ckeyParam = req.getParameter("ckey");
-        String adminCkeyParam = req.getParameter("a_ckey");
+        String ckeyParam = req.getParameter("ckey").trim();
+        String adminCkeyParam = req.getParameter("a_ckey").trim();
         String banTypeParam = req.getParameter("bantype");
         String sortingTypeParam = req.getParameter("sorting_type");
         String orderParam = req.getParameter("order");
 
-        logger.info(req.getRemoteAddr() + ": запрашивание информации об игроке " + ckeyParam + "...");
         try {
             boolean jobban = banTypeParam.equals("jobban");
             Order order = Order.NO_ORDER;
@@ -51,30 +51,40 @@ public class BanListInterfaceServlet extends HttpServlet {
                     order = o;
 
             if (order == Order.NO_ORDER) {
-                switch (sortingTypeParam) {
-                    case "datetime": {
-                        order = Order.BANTIME_DESC;
+                if (!ckeyParam.isEmpty()) {
+                    switch (sortingTypeParam) {
+                        case "datetime": {
+                            order = Order.BANTIME_DESC;
+                        }
+                        break;
+                        case "job": {
+                            order = Order.JOB_ASC;
+                        }
+                        break;
+                        case "duration": {
+                            order = Order.DURATION_DESC;
+                        }
+                        break;
+                        case "a_ckey": {
+                            order = Order.ADMIN_CKEY_ASC;
+                        }
+                        break;
+                        case "standard_order": {
+                            order = Order.BANTIME_DESC;
+                        }
                     }
-                    break;
-                    case "job": {
-                        order = Order.JOB_ASC;
-                    }
-                    break;
-                    case "duration": {
-                        order = Order.DURATION_DESC;
-                    }
-                    break;
-                    case "a_ckey": {
-                        order = Order.ADMIN_CKEY_ASC;
-                    }
-                    break;
-                    case "standard_order": {
-                        order = Order.BANTIME_DESC;
-                    }
-                }
+                } else order = Order.BANTIME_DESC;
             }
 
-            List<Ban> bans = DATA_BASE_DAO.getBans(ckeyParam, adminCkeyParam, jobban, order);
+            List<Ban> bans;
+
+            if (ckeyParam.isEmpty()) {
+                logger.info(req.getRemoteAddr() + ": запрашивание информации об банах администратора " + adminCkeyParam + "...");
+                bans = DATA_BASE_DAO.getAdminBans(adminCkeyParam, jobban, order);
+            } else {
+                logger.info(req.getRemoteAddr() + ": запрашивание информации об игроке " + ckeyParam + "...");
+                bans = DATA_BASE_DAO.getBans(ckeyParam, adminCkeyParam, jobban, order);
+            }
 
             if (bans.size() == 0) {
                 writer.println("Результаты отсутствуют!");
@@ -117,6 +127,9 @@ public class BanListInterfaceServlet extends HttpServlet {
         } catch (TooManyRequestsPerMinuteException e) {
             writer.println("<h1>Был исчерпан лимит на количество запросов в минуту. Повторите запрос через минуту.</h1>");
             logger.warn("Обнаружена угроза спама запросами. Возможный источник: " + req.getRemoteAddr());
+        } catch (AdminCkeyIsNotFoundException e) {
+            writer.println("<h1>Администратора по сикею " + adminCkeyParam + " не обнаружено.</h1>");
+            logger.info("Администратор по сикею " + adminCkeyParam + " не найден.");
         }
 
         RequestDispatcher footerRequestDispatcher = req.getRequestDispatcher("footer.html");

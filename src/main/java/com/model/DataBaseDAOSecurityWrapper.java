@@ -1,6 +1,7 @@
 package com.model;
 
 import com.entity.Ban;
+import com.exception.AdminCkeyIsNotFoundException;
 import com.exception.CkeyBanInfoIsNotFoundException;
 import com.exception.TooManyRequestsPerMinuteException;
 import org.apache.log4j.Logger;
@@ -14,6 +15,16 @@ public class DataBaseDAOSecurityWrapper {
     private Updater updater = new Updater();
 
     private int requestAtCurrentMinute = 0;
+
+    public List<Ban> getAdminBans(String adminCkey, boolean jobBan, Order order) throws AdminCkeyIsNotFoundException, TooManyRequestsPerMinuteException {
+        requestAtCurrentMinute++;
+
+        logger.info("Перехват запроса к DataBaseDAO. Текущее количество запросов за минуту - " + requestAtCurrentMinute + ", максимальное количество - " + MAX_REQUESTS_PER_MINUTE);
+        if (requestAtCurrentMinute > MAX_REQUESTS_PER_MINUTE)
+            throw new TooManyRequestsPerMinuteException();
+
+        return dataBaseDAO.getAdminBans(adminCkey, jobBan, order);
+    }
 
     public List<Ban> getBans(String ckey, String adminCkey, boolean jobBan, Order order) throws CkeyBanInfoIsNotFoundException, TooManyRequestsPerMinuteException {
         requestAtCurrentMinute++;
