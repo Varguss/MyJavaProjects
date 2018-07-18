@@ -10,9 +10,9 @@
 
     <div class="input-form">
         <h1 id="head">Ban Panel</h1>
-        <form method="post" action="/bans">
+        <form method="post" action="/bans" onsubmit="return validateSubmit()">
             <div class="input">
-                <label for="ckey_field">Enter player ckey<br/></label><input class="input-field" id="ckey_field" name="ckey" type="text" maxlength="24" required /><br/>
+                <label for="ckey_field">Enter player ckey<br/></label><input class="input-field" id="ckey_field" name="ckey" type="text" maxlength="24" /><br/>
                 <label for="a_ckey_field">Enter admin ckey<br/></label><input class="input-field" id="a_ckey_field" name="a_ckey" type="text" maxlength="24" /><br/>
 
                 <labeL for="bantype_selector">Choose ban type<br/></labeL><select class="input-field select" id="bantype_selector" onchange="validateJobbanOption()" name="bantype">

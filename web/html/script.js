@@ -27,3 +27,15 @@ function validateOrder() {
         order_field.disabled = false;
     }
 }
+
+var ckeyField = document.getElementById("ckey_field");
+var adminCkeyField = document.getElementById("a_ckey_field");
+
+function validateSubmit() {
+    if (ckeyField.value.trim().length === 0 && adminCkeyField.value.trim().length === 0) {
+        alert("Нужно ввести хотя бы одно из полей admin ckey и ckey!");
+        return false;
+    }
+
+    return true;
+}
