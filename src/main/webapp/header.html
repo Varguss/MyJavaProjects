@@ -1,0 +1,41 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <link href="html/style.css" rel="stylesheet" />
+    <script src="html/script.js" defer></script>
+    <title>Banhub</title>
+</head>
+<body>
+    <h1 id="head">Gamma Station Banhub</h1>
+    <div class="input-form">
+        <form method="post" action="/bans" onsubmit="return validateSubmit()">
+            <div class="input">
+                <label for="ckey_field">Ckey</label><br/><input class="input-field" id="ckey_field" name="ckey" type="text" maxlength="24" /><br/>
+                <label for="a_ckey_field">Admin Ckey</label><br/><input class="input-field" id="a_ckey_field" name="a_ckey" type="text" maxlength="24" /><br/>
+
+                <labeL for="bantype_selector">Ban Type</labeL><br/><select class="input-field select" id="bantype_selector" onchange="validateJobbanOption()" name="bantype">
+                    <option selected value="ban">Ban</option>
+                    <option id="jobban_option" value="jobban">Job Ban</option>
+                </select><br/>
+
+                <labeL for="sorting_type">Sorting Type</labeL><br/><select onchange="validateOrder()" class="input-field select" id="sorting_type" name="sorting_type">
+                    <option selected id="standard_order" value="no-order">Standard</option>
+                    <option value="a_ckey">By Admin Name</option>
+                    <option value="duration">By Ban Duration</option>
+                    <option value="bantime">By Ban Getted Date</option>
+                    <option disabled id="jobban_order" value="job">By job (only for job bans)</option>
+                </select><br/>
+
+                <labeL for="order_type">Order</labeL><br/><select disabled class="input-field select" id="order_type" name="order">
+                    <option selected id="auto_order" value="auto">Auto</option>
+                    <option value="asc">Ascending</option>
+                    <option value="desc">Descending</option>
+                </select><br/>
+
+                <input class="input-field" id="submit_button" type="submit" value="GET" />
+            </div>
+        </form>
+    </div>
+</body>
+</html>

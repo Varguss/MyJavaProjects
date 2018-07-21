@@ -1,0 +1,127 @@
+.input-form {
+    width: 50%;
+    margin-left: 25%;
+    margin-right: 25%;
+
+    margin-top: -20px;
+    position:relative;
+}
+
+#head {
+    position: relative;
+
+    text-align: center;
+    display:inline-block;
+    box-sizing: border-box;
+
+    font-style: normal;
+    font-family: sans-serif;
+    font-size: 3rem;
+    margin-top:0;
+    margin-bottom:5px;
+}
+.input {
+    position:relative;
+
+    margin: 2%;
+    padding: 1%;
+}
+:root {
+    font-family: "Arial", serif;
+    font-size: 1.2em;
+    font-weight: bold;
+    font-style:italic;
+
+    background-image: url("../images/background.png");
+    background-clip: border-box;
+}
+
+#submit_button {
+    position:relative;
+    box-sizing:content-box;
+
+    width: 30%;
+    left: 1%;
+    margin-top: 2%;
+}
+
+.input-field, .select {
+    box-sizing:content-box;
+    padding: 5px;
+    position: relative;
+    left: 1%;
+    margin: 1%;
+
+    border: black ridge 8px;
+    background-color: white;
+    color: black;
+
+    width: 50%;
+    font-family: fantasy;
+    font-size: 1.2em;
+    font-weight:bold;
+}
+
+.input-field:hover, select:hover {
+    border: #A33 groove 8px;
+    color: #A33;
+    background-color: #DDEEFF;
+}
+
+option {
+    height: 5px;
+}
+
+table {
+    border: black solid 6px;
+
+    font-size: 0.75em;
+    text-align:center;
+
+    width: 100%;
+}
+
+th, td {
+    border: black solid 4px;
+}
+
+th:hover, td:hover {
+    background-color: #A33;
+}
+
+th {
+    font-family: Arial serif;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 1.5em;
+}
+
+/* Нижний колонтитул (футер) */
+.footer {
+    text-align: center;
+    margin-top: 1%;
+    font-size: 1.2rem;
+    font-family: serif;
+    letter-spacing:1.5px;
+}
+
+#order_type:disabled {
+    border-color: #A33;
+    color: #A33;
+}
+
+label {
+    font-style: normal;
+    font-family: serif;
+    font-weight: bold;
+    font-size: 1.2rem;
+    box-sizing: content-box;
+    display: inline-block;
+    position:relative;
+    margin: -10px;
+}
+
+form {
+    text-align: center;
+    position:relative;
+}
