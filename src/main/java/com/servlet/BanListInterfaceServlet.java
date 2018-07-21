@@ -19,6 +19,7 @@ import java.io.PrintWriter;
 import java.sql.Date;
 import java.util.List;
 import java.util.StringJoiner;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class BanListInterfaceServlet extends HttpServlet {
     private static final Logger logger = Logger.getLogger(BanListInterfaceServlet.class);
@@ -100,7 +101,7 @@ public class BanListInterfaceServlet extends HttpServlet {
                 for (Ban ban : bans) {
                     String ckey = ban.getCkey();
                     String adminCkey = ban.getAdminCkey();
-                    String reason = ban.getReason();
+                    String reason = ban.getReason().replace("¶", "я");
                     Date banTime = ban.getBanTime();
                     Date banExpiration = ban.getExpirationTime();
                     int duration = ban.getDurationTime();

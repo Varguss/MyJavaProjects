@@ -23,7 +23,13 @@ public class DataBaseDAOSecurityWrapper {
         if (requestAtCurrentMinute > MAX_REQUESTS_PER_MINUTE)
             throw new TooManyRequestsPerMinuteException();
 
-        return dataBaseDAO.getAdminBans(adminCkey, jobBan, order);
+        try {
+            return dataBaseDAO.getAdminBans(adminCkey, jobBan, order);
+        } catch (AdminCkeyIsNotFoundException e) {
+            logger.info("Сикей админа " + adminCkey + " не был найден в кэше. Данный запрос не будет засчитан.");
+            requestAtCurrentMinute--;
+            throw e;
+        }
     }
 
     public List<Ban> getBans(String ckey, String adminCkey, boolean jobBan, Order order) throws CkeyBanInfoIsNotFoundException, TooManyRequestsPerMinuteException {
@@ -33,7 +39,13 @@ public class DataBaseDAOSecurityWrapper {
         if (requestAtCurrentMinute > MAX_REQUESTS_PER_MINUTE)
             throw new TooManyRequestsPerMinuteException();
 
-        return dataBaseDAO.getBans(ckey, adminCkey, jobBan, order);
+        try {
+            return dataBaseDAO.getBans(ckey, adminCkey, jobBan, order);
+        } catch (CkeyBanInfoIsNotFoundException e) {
+            logger.info("Сикей игрока " + ckey + " не был найден в кэше. Данный запрос не будет засчитан.");
+            requestAtCurrentMinute--;
+            throw e;
+        }
     }
 
     public void updateCash() throws TooManyRequestsPerMinuteException {
@@ -48,7 +60,7 @@ public class DataBaseDAOSecurityWrapper {
 
     private class Updater implements Runnable {
         private Updater() {
-            Thread thread = new Thread("Updater");
+            Thread thread = new Thread(this, "Updater");
             thread.setDaemon(true);
             thread.start();
         }
